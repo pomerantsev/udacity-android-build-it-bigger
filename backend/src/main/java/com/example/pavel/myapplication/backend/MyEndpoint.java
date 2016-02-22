@@ -10,6 +10,8 @@ import com.google.api.server.spi.config.Api;
 import com.google.api.server.spi.config.ApiMethod;
 import com.google.api.server.spi.config.ApiNamespace;
 
+import ru.pomerantsevp.example.testendpoints.jokes.JokeTeller;
+
 /** An endpoint class we are exposing */
 @Api(
   name = "myApi",
@@ -26,7 +28,7 @@ public class MyEndpoint {
     @ApiMethod(name = "sayJoke")
     public MyBean sayJoke() {
         MyBean response = new MyBean();
-        response.setData("Joke #465");
+        response.setData(new JokeTeller().getJoke());
 
         return response;
     }
