@@ -1,12 +1,11 @@
 package ru.pomerantsevp.example.testendpoints;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Pair;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.view.View;
 
 import com.example.pavel.myapplication.backend.myApi.MyApi;
 import com.google.android.gms.ads.AdRequest;
@@ -17,6 +16,8 @@ import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import java.io.IOException;
+
+import ru.pomerantsevp.example.jokedisplay.JokeActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -33,19 +34,19 @@ public class MainActivity extends AppCompatActivity {
                 .addTestDevice(AdRequest.DEVICE_ID_EMULATOR)
                 .build();
                 mAdView.loadAd(adRequest);
+    }
 
-        ((TextView) findViewById(R.id.text)).setText("Hello World");
-
-        new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
+    public void tellJoke(View view){
+        new EndpointsAsyncTask().execute(this);
     }
 }
 
-class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> {
+class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
     private static MyApi myApiService = null;
     private Context context;
 
     @Override
-    protected String doInBackground(Pair<Context, String>... params) {
+    protected String doInBackground(Context... params) {
         if(myApiService == null) {  // Only do this once
             MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
                     new AndroidJsonFactory(), null)
@@ -64,8 +65,7 @@ class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> 
             myApiService = builder.build();
         }
 
-        context = params[0].first;
-        String name = params[0].second;
+        context = params[0];
 
         try {
             return myApiService.sayJoke().execute().getData();
@@ -76,6 +76,8 @@ class EndpointsAsyncTask extends AsyncTask<Pair<Context, String>, Void, String> 
 
     @Override
     protected void onPostExecute(String result) {
-        Toast.makeText(context, result, Toast.LENGTH_LONG).show();
+        Intent intent = new Intent(context, JokeActivity.class);
+        intent.putExtra(JokeActivity.INTENT_JOKE_KEY, result);
+        context.startActivity(intent);
     }
 }
